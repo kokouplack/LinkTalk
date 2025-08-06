@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Chat Instagram</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    #login, #chat {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #messages {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+    .message {
+      margin: 5px 0;
+    }
+    .me {
+      text-align: right;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Connexion</h2>
+  <input type="text" id="username" placeholder="Nom d'utilisateur" required />
+  <button onclick="login()">Entrer</button>
+</div>
+
+<div id="chat" style="display: none;">
+  <h2>Chat</h2>
+  <div id="messages"></div>
+  <input type="text" id="messageInput" placeholder="Écris un message..." />
+  <button onclick="sendMessage()">Envoyer</button>
+  <button onclick="logout()" style="background:#f66;color:white;">Déconnexion</button>
+</div>
+
+<script>
+  let username = localStorage.getItem("username");
+
+  if (username) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("chat").style.display = "block";
+    loadMessages();
+  }
+
+  function login() {
+    const name = document.getElementById("username").value;
+    if (name.trim() === "") return alert("Entrez un nom !");
+    localStorage.setItem("username", name);
+    username = name;
+    document.getElementById("login").style.display = "none";
+    document.getElementById("chat").style.display = "block";
+    loadMessages();
+  }
+
+  function logout() {
+    localStorage.removeItem("username");
+    location.reload();
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    if (text === "") return;
+    const message = { user: username, text };
+    const history = JSON.parse(localStorage.getItem("chat") || "[]");
+    history.push(message);
+    localStorage.setItem("chat", JSON.stringify(history));
+    input.value = "";
+    loadMessages();
+  }
+
+  function loadMessages() {
+    const history = JSON.parse(localStorage.getItem("chat") || "[]");
+    const messages = document.getElementById("messages");
+    messages.innerHTML = "";
+    history.forEach(msg => {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      if (msg.user === username) div.classList.add("me");
+      div.textContent = `${msg.user}: ${msg.text}`;
+      messages.appendChild(div);
+    });
+    messages.scrollTop = messages.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
